@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kelopak Indah | Invoice</title>
+<style>
+  :root { --blue:#1767d2; --ink:#172033; --muted:#64748b; --line:#dce3ec; --paper:#fff; --bg:#f3f6fb; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:Arial, Helvetica, sans-serif; }
+  .app { max-width:1100px; margin:28px auto; padding:0 18px 36px; }
+  .top { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:20px; }
+  h1 { margin:0; font-size:25px; letter-spacing:-.5px; }
+  .sub { margin-top:5px; color:var(--muted); font-size:13px; }
+  .layout { display:grid; grid-template-columns:minmax(280px, .8fr) minmax(0,1.2fr); gap:18px; align-items:start; }
+  .panel { background:white; border:1px solid var(--line); border-radius:15px; padding:22px; box-shadow:0 5px 20px #17203308; }
+  h2 { margin:0 0 17px; font-size:17px; }
+  .field { margin-bottom:13px; }
+  label { display:block; margin-bottom:6px; font-size:13px; font-weight:700; }
+  input { width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:11px 12px; font:inherit; font-size:14px; background:white; color:var(--ink); }
+  input:focus { outline:2px solid #bfdbfe; border-color:var(--blue); }
+  .color-control { display:flex; align-items:center; gap:10px; }
+  input[type=color] { width:54px; height:40px; padding:4px; cursor:pointer; }
+  textarea { width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:11px 12px; font:inherit; font-size:14px; background:white; color:var(--ink); resize:vertical; }
+  .notes { margin-top:18px; font-size:12px; line-height:1.5; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .notes strong { display:block; font-size:13px; margin-bottom:4px; }
+  .sign-image { display:block; max-width:130px; max-height:65px; object-fit:contain; margin:0 auto 5px; }
+  .hint { font-size:12px; color:var(--muted); margin-top:5px; }
+  .buttons { display:flex; gap:9px; flex-wrap:wrap; margin-top:18px; }
+  button { border:0; border-radius:9px; padding:11px 15px; font-weight:700; font-size:13px; cursor:pointer; }
+  .primary { color:white; background:var(--blue); }
+  .secondary { background:#eaf0f8; color:#1e293b; }
+  .danger { background:#fff0f0; color:#b42318; }
+  .preview-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  .preview-head h2 { margin:0; }
+  .invoice { background:white; color:#111; padding:27px; border:1px solid #e2e8f0; }
+  .invoice-title { text-align:center; font-weight:800; font-size:30px; margin:0 0 18px; }
+  .business { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; border-bottom:1px solid #ddd; padding-bottom:15px; }
+  .business-name { font-size:19px; font-weight:800; margin-bottom:6px; }
+  .business-info { font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
+  .logo { width:130px; max-height:70px; object-fit:contain; }
+  .meta { display:flex; justify-content:space-between; gap:14px; padding:15px 0 13px; font-size:13px; }
+  .meta strong { font-size:16px; }
+  .meta-right { text-align:right; line-height:1.8; }
+  .items { width:100%; border-collapse:collapse; font-size:13px; }
+  .items th { background:var(--blue); color:white; padding:9px 7px; text-align:left; }
+  .items td { border-bottom:1px solid #ddd; padding:10px 7px; vertical-align:top; }
+  .items th:last-child,.items td:last-child { text-align:right; }
+  .items th:nth-child(2),.items td:nth-child(2) { text-align:center; }
+  .totals { margin:13px 0 0 auto; width:min(100%,300px); font-size:13px; }
+  .total-row { display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px solid #ddd; }
+  .total-row:last-child { font-weight:800; font-size:15px; }
+  .terms { margin-top:22px; font-size:12px; line-height:1.5; }
+  .terms strong { display:block; font-size:14px; margin-bottom:5px; }
+  .sign { margin:15px 0 0 auto; text-align:center; width:150px; font-weight:700; }
+  .sign-space { height:45px; }
+  .table-panel { margin-top:18px; }
+  .table-wrap { overflow:auto; }
+  table.data { border-collapse:collapse; width:100%; min-width:680px; font-size:13px; }
+  .data th,.data td { text-align:left; padding:11px 10px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  .data th { background:#f8fafc; color:#475569; }
+  .empty { color:var(--muted); text-align:center!important; padding:24px!important; }
+  .notice { color:var(--muted); font-size:12px; margin-top:10px; line-height:1.5; }
+  @media(max-width:780px) { .layout { grid-template-columns:1fr; } .app { margin-top:18px; } .panel { padding:16px; } .invoice { padding:17px; } .invoice-title { font-size:25px; } .business-info { font-size:11px; } .logo { width:95px; } }
+  @media print {
+    @page { size:A4; margin:12mm; }
+    body { background:white; }
+    .app { margin:0; padding:0; max-width:none; }
+    .top,.form-panel,.preview-head,.table-panel,.notice { display:none!important; }
+    .layout { display:block; }
+    .preview-panel { padding:0; border:0; box-shadow:none; }
+    .invoice { border:0; padding:0; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div><h1>Kelopak Indah · Invoice</h1><div class="sub">Input data sekali, lalu cetak invoice.</div></div>
+    <button class="secondary" type="button" onclick="window.print()">🖨️ Print invoice</button>
+  </header>
+
+  <main class="layout">
+    <section class="panel form-panel">
+      <h2>Input data penyewa</h2>
+      <form id="invoiceForm">
+        <div class="field"><label for="name">Nama penyewa *</label><input id="name" name="name" required placeholder="Nama lengkap"></div>
+        <div class="field"><label for="ktp">No. KTP</label><input id="ktp" name="ktp" inputmode="numeric" placeholder="Opsional"></div>
+        <div class="field"><label for="cost">Biaya sewa (Rp) *</label><input id="cost" name="cost" type="number" min="0" step="1000" required placeholder="Contoh: 3500000"></div>
+        <div class="field"><label for="checkin">Tanggal masuk *</label><input id="checkin" name="checkin" type="date" required></div>
+        <div class="field"><label for="checkout">Tanggal keluar *</label><input id="checkout" name="checkout" type="date" required></div>
+        <div class="field"><label for="room">No. kamar *</label><input id="room" name="room" required placeholder="Contoh: 07"></div>
+        <div class="field"><label for="accentColor">Warna aksen invoice</label><div class="color-control"><input id="accentColor" type="color" value="#1767d2" aria-label="Pilih warna aksen"><span class="hint">Pilih warna untuk mengganti warna biru pada invoice.</span></div></div>
+        <div class="field"><label for="notes">Notes (opsional)</label><textarea id="notes" name="notes" rows="3" placeholder="Catatan tambahan untuk penyewa"></textarea></div>
+        <div class="buttons">
+          <button class="primary" type="submit">Simpan & buat invoice</button>
+          <button class="secondary" type="button" id="newInvoice">Kosongkan form</button>
+        </div>
+        <p class="notice">Data tersimpan di browser/perangkat ini saja. Gunakan tombol print untuk mencetak atau menyimpan sebagai PDF.</p>
+      </form>
+    </section>
+
+    <section class="panel preview-panel">
+      <div class="preview-head"><h2>Preview invoice</h2><button class="primary" type="button" onclick="window.print()">Print / PDF</button></div>
+      <article class="invoice" id="invoice">
+        <h2 class="invoice-title">INVOICE</h2>
+        <div class="business">
+          <div><div class="business-name">Kelopak Indah</div><div class="business-info">kelopakinn@gmail.com<br>082243423350<br>Kp.Koplak RT04 RW 06<br>Kel.siswodipuran kec boyolali<br>(Timur Gedung Mahesa)</div></div>
+          <img id="logoPreview" class="logo" src="https://ibb.co.com/YFwGNh4w" alt="Logo Kelopak Indah">
+        </div>
+        <div class="meta">
+          <div><strong>Bill To</strong><div id="pName" style="margin-top:7px">Nama penyewa</div><div id="pKtp" style="margin-top:4px;font-size:11px"></div></div>
+          <div class="meta-right"><strong>Invoice No. <span id="pNumber">KI-001</span></strong><br><span>Invoice Date: <span id="pDate">-</span></span><br><span>No. Kamar: <strong id="pRoom">-</strong></span></div>
+        </div>
+        <table class="items">
+          <thead><tr><th style="width:32px">Sl.</th><th>Description</th><th style="width:45px">Qty</th><th style="width:100px">Rate</th><th style="width:105px">Amount</th></tr></thead>
+          <tbody><tr><td>1</td><td id="pDescription">Sewa kamar</td><td>1</td><td id="pRate">Rp0</td><td id="pAmount">Rp0</td></tr></tbody>
+        </table>
+        <div class="totals">
+          <div class="total-row"><strong>Subtotal</strong><strong id="pSubtotal">Rp0</strong></div>
+          <div class="total-row"><strong>Total</strong><strong id="pTotal">Rp0</strong></div>
+          <div class="total-row"><span>Paid</span><span id="pPaid">Rp0</span></div>
+          <div class="total-row"><strong>Balance Due</strong><strong id="pBalance">Rp0</strong></div>
+        </div>
+        <div class="terms"><strong>Payment / Terms</strong><div>Invoice ini merupakan bukti pencatatan biaya sewa kamar. Simpan invoice ini sebagai arsip pembayaran.</div><div style="margin-top:8px"><strong>Payment Instructions</strong><div>Send to: no rek 1741200126 Dhyana N</div></div></div>
+        <div id="pNotes" class="notes" hidden><strong>Notes</strong><span id="pNotesText"></span></div>
+        <div class="sign"><div class="sign-space"><img class="sign-image" src="https://ibb.co.com/C3M8Nwqy" alt="Tanda tangan owner"></div>Dhyana</div>
+      </article>
+    </section>
+  </main>
+
+  <section class="panel table-panel">
+    <h2>Database penyewa</h2>
+    <div class="table-wrap"><table class="data"><thead><tr><th>ID</th><th>Nama</th><th>No. KTP</th><th>Tanggal Masuk</th><th>Tanggal Keluar</th><th>Biaya (Rp)</th><th>No. Kamar</th><th>Aksi</th></tr></thead><tbody id="records"><tr><td colspan="8" class="empty">Belum ada data. Isi form lalu klik “Simpan & buat invoice”.</td></tr></tbody></table></div>
+    <div class="buttons"><button class="secondary" id="exportCsv" type="button">Export CSV</button><button class="danger" id="clearData" type="button">Hapus semua data</button></div>
+    <p class="notice">Catatan: database ini memakai penyimpanan lokal browser (localStorage), bukan server online. Data tidak otomatis tersinkron ke perangkat lain.</p>
+  </section>
+</div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const STORAGE_KEY = 'kelopakindah_invoice_records_v1';
+  let records = [];
+  try { records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch (_) { records = []; }
+  let currentLogo = '';
+  let currentRecordId = null;
+
+  const money = n => new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR', maximumFractionDigits:0}).format(Number(n) || 0);
+  const dateDisplay = value => {
+    if (!value) return '-';
+    const d = new Date(value + 'T00:00:00');
+    return d.toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+  };
+  const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)); }
+  function invoiceNumber(record) { return 'KI-' + String(record.id).padStart(3, '0'); }
+
+  function updatePreview(data = null) {
+    const name = data ? data.name : $('name').value;
+    const ktp = data ? data.ktp : $('ktp').value;
+    const cost = data ? data.cost : $('cost').value;
+    const checkin = data ? data.checkin : $('checkin').value;
+    const checkout = data ? data.checkout : $('checkout').value;
+    const room = data ? data.room : $('room').value;
+    const notes = data ? (data.notes || '') : $('notes').value.trim();
+    $('pName').textContent = name || 'Nama penyewa';
+    $('pKtp').textContent = ktp ? 'No. KTP: ' + ktp : '';
+    $('pRoom').textContent = room || '-';
+    $('pDate').textContent = new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+    $('pNumber').textContent = data ? invoiceNumber(data) : (currentRecordId ? 'KI-' + String(currentRecordId).padStart(3,'0') : 'KI-DRAFT');
+    $('pDescription').textContent = checkin && checkout ? `Sewa kamar ${room || '-'} (${dateDisplay(checkin)} s.d. ${dateDisplay(checkout)})` : `Sewa kamar ${room || ''}`.trim();
+    $('pRate').textContent = money(cost);
+    $('pAmount').textContent = money(cost);
+    $('pSubtotal').textContent = money(cost);
+    $('pTotal').textContent = money(cost);
+    $('pPaid').textContent = money(cost);
+    $('pBalance').textContent = money(0);
+    $('pNotesText').textContent = notes;
+    $('pNotes').hidden = !notes;
+  }
+  function renderRecords() {
+    const body = $('records');
+    if (!records.length) {
+      body.innerHTML = '<tr><td colspan="8" class="empty">Belum ada data. Isi form lalu klik “Simpan & buat invoice”.</td></tr>';
+      return;
+    }
+    body.innerHTML = records.slice().reverse().map(r => `<tr>
+      <td>${safe(r.id)}</td><td>${safe(r.name)}</td><td>${safe(r.ktp || '-')}</td>
+      <td>${safe(dateDisplay(r.checkin))}</td><td>${safe(dateDisplay(r.checkout))}</td>
+      <td>${safe(money(r.cost))}</td><td>${safe(r.room)}</td>
+      <td><button class="secondary" type="button" data-action="view" data-id="${safe(r.id)}">Lihat</button> <button class="danger" type="button" data-action="delete" data-id="${safe(r.id)}">Hapus</button></td>
+    </tr>`).join('');
+  }
+  ['name','ktp','cost','checkin','checkout','room','notes'].forEach(id => $(id).addEventListener('input', () => updatePreview()));
+  $('accentColor').addEventListener('input', event => { document.documentElement.style.setProperty('--blue', event.target.value); });
+
+  $('invoiceForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const checkin = $('checkin').value, checkout = $('checkout').value;
+    if (checkout < checkin) { alert('Tanggal keluar harus sama dengan atau setelah tanggal masuk.'); return; }
+    const record = {
+      id: Date.now(),
+      name: $('name').value.trim(),
+      ktp: $('ktp').value.trim(),
+      cost: Number($('cost').value),
+      checkin, checkout, room: $('room').value.trim(), notes: $('notes').value.trim()
+    };
+    records.push(record);
+    try { persist(); } catch (_) { alert('Data tidak dapat disimpan di browser ini.'); }
+    currentRecordId = record.id;
+    renderRecords();
+    updatePreview(record);
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  $('newInvoice').addEventListener('click', () => {
+    $('invoiceForm').reset(); currentRecordId = null; updatePreview();
+  });
+  $('records').addEventListener('click', event => {
+    const btn = event.target.closest('button[data-action]');
+    if (!btn) return;
+    const id = Number(btn.dataset.id);
+    if (btn.dataset.action === 'view') {
+      const r = records.find(x => x.id === id);
+      if (!r) return;
+      currentRecordId = r.id;
+      $('name').value = r.name; $('ktp').value = r.ktp || ''; $('cost').value = r.cost;
+      $('checkin').value = r.checkin; $('checkout').value = r.checkout; $('room').value = r.room; $('notes').value = r.notes || '';
+      updatePreview(r); window.scrollTo({top:0, behavior:'smooth'});
+    } else if (btn.dataset.action === 'delete' && confirm('Hapus data penyewa ini?')) {
+      records = records.filter(x => x.id !== id); persist(); renderRecords();
+    }
+  });
+  $('clearData').addEventListener('click', () => {
+    if (!records.length || !confirm('Yakin ingin menghapus SEMUA data yang tersimpan di browser ini?')) return;
+    records = []; persist(); renderRecords(); currentRecordId = null;
+  });
+  $('exportCsv').addEventListener('click', () => {
+    if (!records.length) { alert('Belum ada data untuk diekspor.'); return; }
+    const rows = [['ID','Nama','NoKTP','TanggalMasuk','TanggalKeluar','Biaya','NoKamar','Notes'], ...records.map(r => [r.id,r.name,r.ktp,r.checkin,r.checkout,r.cost,r.room,r.notes || ''])];
+    const csv = rows.map(row => row.map(v => '"' + String(v ?? '').replace(/"/g,'""') + '"').join(',')).join('\r\n');
+    const blob = new Blob(['\ufeff' + csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'database-kelopak-indah.csv'; a.click();
+    URL.revokeObjectURL(url);
+  });
+  renderRecords(); updatePreview();
+})();
+</script>
+</body>
+</html>
